@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Snek</title>
+</head>
+
+<body>
+<canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
+</canvas>
+
+<script type="text/javascript">
+	//"use strict";
+
+	var canvas = document.getElementById("myCanvas");
+	var ctx = canvas.getContext("2d");
+	document.addEventListener("keydown",keyPressed);
+
+	const RECT_SIZE = 10; 
+	const TILE_COUNT = canvas.height/RECT_SIZE;
+
+	const UP = { x : 0 , y : -1};
+	const DOWN = {x : 0 , y : 1};
+	const LEFT = {x : -1 , y : 0};
+	const RIGHT = {x : 1 , y : 0};
+
+
+	var snake = new Snake();
+	var apple = new Apple();
+	var intervalId = setInterval(drawNextFrame,1000/16); // 16fps	
+
+
+	
+
+	function Apple(){
+		this.x = 10;
+		this.y = 10;
+		// this.x = getRandomPosition();
+		// this.y = getRandomPosition();
+
+		this.getRandomPosition =function(){
+			return Math.floor(Math.random()*TILE_COUNT);
+		}
+
+		this.nextPosition=function(){
+			var temp = this.getRandomPosition();
+			console.log(this.getRandomPosition());
+				this.x = this.getRandomPosition();
+				this.y = this.getRandomPosition();
+			}
+	}
+
+	function Snake(){
+		this.tail = [
+		{ x: TILE_COUNT/2, y: TILE_COUNT/2},
+		{x: TILE_COUNT/2, y: TILE_COUNT/2},
+		{x: TILE_COUNT/2, y: TILE_COUNT/2},
+		{x: TILE_COUNT/2, y: TILE_COUNT/2},
+		{x: TILE_COUNT/2, y: TILE_COUNT/2},
+		{x: TILE_COUNT/2, y: TILE_COUNT/2}];
+
+		this.direction = RIGHT;
+
+		this.move = function(apple){
+			var next = {
+			x : snake.tail[0].x+snake.direction.x,
+			y : snake.tail[0].y+snake.direction.y
+			}
+
+			if(next.x>=TILE_COUNT)
+				next.x=0;
+			if(next.x<0)
+				next.x=TILE_COUNT-1;
+			if(next.y>=TILE_COUNT)
+				next.y=0;
+			if(next.y<0)
+				next.y=TILE_COUNT-1;
+
+
+			var newLength = 1;
+			for(var i = 0; i < this.tail.length;i++){
+				if(this.tail[i].x===next.x && this.tail[i].y===next.y){
+					this.tail.length=newLength;
+					break; 
+				}
+				newLength++;
+			}
+
+
+			snake.tail.unshift(next);
+
+
+			if(next.x===apple.x && next.y===apple.y){
+				apple.nextPosition(); // eats the apple
+			}else{
+				snake.tail.pop();
+			}
+
+		}
+	}
+
+	function keyPressed(evt){
+
+		if(evt.keyCode === 37 && snake.direction!==RIGHT)
+			snake.direction=LEFT;
+		if(evt.keyCode === 38 && snake.direction!==DOWN){
+			snake.direction=UP;
+		}
+		if(evt.keyCode === 39 && snake.direction!==LEFT)
+			snake.direction = RIGHT;
+		if(evt.keyCode === 40 && snake.direction!==UP)
+			snake.direction = DOWN;
+
+	}
+	function drawNextFrame(){
+
+		ctx.clearRect(0,0,canvas.width,canvas.height);
+	
+		snake.move(apple);
+
+		ctx.fillStyle ="red";
+		ctx.fillRect(apple.x*RECT_SIZE,apple.y*RECT_SIZE,RECT_SIZE-1,RECT_SIZE-1);
+	
+		ctx.fillStyle = "black";
+		for (var i = 0; i < snake['tail'].length; i++) {
+			ctx.fillRect(snake.tail[i].x*RECT_SIZE,snake.tail[i].y*RECT_SIZE,RECT_SIZE-1,RECT_SIZE-1);
+		}
+
+		}
+	
+	function stop(){
+		clearInterval(intervalID);
+	}
+	
+	
+</script>
+</body >
+</html>
